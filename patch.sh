@@ -358,6 +358,17 @@ apply_binary_replacements() {
         done < <(find "$PATCHES_DIR/binary_replacements" -type f -print0)
     fi
 
+    # Fix: Prevent AAPT2 conflicting resource definitions when both .png and .webp exist
+    # for ic_launcher across mipmap and drawable densities
+    for icon_dir in "$WORK_DIR/decompiled/res"/mipmap-* "$WORK_DIR/decompiled/res"/drawable-*; do
+        if [ -d "$icon_dir" ]; then
+            if [ -f "$icon_dir/ic_launcher.png" ] && [ -f "$icon_dir/ic_launcher.webp" ]; then
+                # Remove the png to allow the webp to take precedence without conflict
+                rm -f "$icon_dir/ic_launcher.png"
+            fi
+        fi
+    done
+
     print_success "Replaced $count binary files"
 }
 
@@ -379,10 +390,19 @@ rebuild_apk() {
 
     mkdir -p "$OUTPUT_DIR"
 
-    # Attempt apktool build
-    if ! run_apktool b "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
-        print_error "apktool build failed with standard flags. Retrying with --use-aapt2..."
-        if ! run_apktool b --use-aapt2 "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
+    # Clean any accidental conflicting resource files or leftovers in res/
+    for icon_dir in "$WORK_DIR/decompiled/res"/mipmap-* "$WORK_DIR/decompiled/res"/drawable-*; do
+        if [ -d "$icon_dir" ]; then
+            if [ -f "$icon_dir/ic_launcher.png" ] && [ -f "$icon_dir/ic_launcher.webp" ]; then
+                rm -f "$icon_dir/ic_launcher.png"
+            fi
+        fi
+    done
+
+    # Attempt apktool build with standard options
+    if ! run_apktool b -f "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
+        print_error "Standard apktool build failed. Attempting with --use-aapt1 fallback..."
+        if ! run_apktool b --use-aapt1 "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
             print_error "apktool build failed! Check resource XMLs or Smali syntax errors."
             return 1
         fi

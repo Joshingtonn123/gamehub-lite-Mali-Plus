@@ -9,15 +9,17 @@ const PORT = 3000;
 
 // Resolve logo path
 let logoBuffer = null;
+let logoMime = 'image/webp';
 const possibleLogoPaths = [
-  path.join(__dirname, 'patches/binary_replacements/res/mipmap-xxxhdpi/ic_launcher.png'),
-  path.join(__dirname, 'patches/binary_replacements/res/mipmap-xxhdpi/ic_launcher.png'),
-  path.join(__dirname, 'src/assets/images/gamehub_mali_user_logo_1789756065331.jpg')
+  { path: path.join(__dirname, 'patches/binary_replacements/res/mipmap-xxxhdpi/ic_launcher.webp'), mime: 'image/webp' },
+  { path: path.join(__dirname, 'patches/binary_replacements/res/mipmap-xxhdpi/ic_launcher.webp'), mime: 'image/webp' },
+  { path: path.join(__dirname, 'src/assets/images/gamehub_mali_user_logo_1789756065331.jpg'), mime: 'image/jpeg' }
 ];
 
 for (const p of possibleLogoPaths) {
-  if (fs.existsSync(p)) {
-    logoBuffer = fs.readFileSync(p);
+  if (fs.existsSync(p.path)) {
+    logoBuffer = fs.readFileSync(p.path);
+    logoMime = p.mime;
     break;
   }
 }
@@ -898,7 +900,7 @@ const server = http.createServer((req, res) => {
   if (url === '/logo.png' || url === '/favicon.ico') {
     if (logoBuffer) {
       res.writeHead(200, {
-        'Content-Type': 'image/png',
+        'Content-Type': logoMime,
         'Cache-Control': 'public, max-age=3600'
       });
       res.end(logoBuffer);
