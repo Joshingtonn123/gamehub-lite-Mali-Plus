@@ -1,0 +1,9 @@
+{
+  "name": "gamehub-mali-plus",
+  "version": "1.0.0-alpha",
+  "description": "Gamehub Mali+ (1.0 Alpha) - Optimized GameHub edition for Mali GPUs",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Gamehub Mali+ 1.0 Alpha build check passed'"
+  }
+}

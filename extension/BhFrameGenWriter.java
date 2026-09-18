@@ -23,6 +23,7 @@ public class BhFrameGenWriter {
         BhFrameGenSettings s = BhFrameGenSettings.load(ctx);
         write(resolveControlPath(ctx), s);
         BhVulkanIcdWriter.ensureIcdJson(ctx);
+        BhMaliWriter.applyFromPrefs(ctx);
     }
 
     /** Resolves the app Context via ActivityThread reflection so the launch-time smali
@@ -49,10 +50,16 @@ public class BhFrameGenWriter {
                 MappedByteBuffer buf = ch.map(FileChannel.MapMode.READ_WRITE, 0, 10);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
 
+                float effectiveFlowScale = s.flowScale;
+                // Anti-Lag & Anti-Stall safeguard: prevent optical flow backlog at higher multipliers
+                if (s.lowFpsAntiLag && s.multiplier > 2 && effectiveFlowScale > 0.45f) {
+                    effectiveFlowScale = 0.40f;
+                }
+
                 buf.put(2, (byte) (s.enabled ? 1 : 0));
-                buf.putFloat(4, clampFloat(s.flowScale, 0.2f, 1.0f));
+                buf.putFloat(4, clampFloat(effectiveFlowScale, 0.2f, 1.0f));
                 buf.put(8, (byte) (s.model & 0x01));
-                buf.put(9, (byte) 2);
+                buf.put(9, (byte) clampInt(s.multiplier, 2, 4));
                 buf.force();
             }
         } catch (Exception ignored) {}
@@ -64,6 +71,10 @@ public class BhFrameGenWriter {
 
     public static void writeModel(String controlPath, int model) {
         writeByteAt(controlPath, 8, (byte) (model & 0x01));
+    }
+
+    public static void writeMultiplier(String controlPath, int multiplier) {
+        writeByteAt(controlPath, 9, (byte) clampInt(multiplier, 2, 4));
     }
 
     public static void writeFlowScale(String controlPath, float flowScale) {
@@ -90,6 +101,10 @@ public class BhFrameGenWriter {
     }
 
     private static float clampFloat(float v, float lo, float hi) {
+        return Math.max(lo, Math.min(hi, v));
+    }
+
+    private static int clampInt(int v, int lo, int hi) {
         return Math.max(lo, Math.min(hi, v));
     }
 }

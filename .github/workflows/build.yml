@@ -1,22 +1,12 @@
-name: Build Debug APK
+name: Build Gamehub Mali+ Release APKs
 
 on:
   workflow_dispatch:
   push:
     branches: [master]
-    paths:
-      - 'patches/**'
-      - 'extension/**'
-      - 'patch.sh'
-      - 'generate-patches.sh'
-      - '.github/workflows/build-debug.yml'
+    tags:
+      - 'v*'
   pull_request:
-    paths:
-      - 'patches/**'
-      - 'extension/**'
-      - 'patch.sh'
-      - 'generate-patches.sh'
-      - '.github/workflows/build-debug.yml'
 
 env:
   SOURCE_APK_URL: https://github.com/Producdevity/gamehub-lite/releases/download/v5.1.0-patch/GameHub-5.1.0.apk
@@ -41,7 +31,6 @@ jobs:
         run: |
           wget -q "https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VERSION}/apktool_${APKTOOL_VERSION}.jar" \
             -O /usr/local/bin/apktool.jar
-          # Simple wrapper script instead of relying on upstream master branch
           cat > /usr/local/bin/apktool << 'WRAPPER'
           #!/bin/bash
           exec java -jar /usr/local/bin/apktool.jar "$@"
@@ -71,7 +60,6 @@ jobs:
         run: |
           ANDROID_JAR="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
           if [ ! -f "$ANDROID_JAR" ]; then
-            # Fallback: install platform 34 if missing
             sdkmanager "platforms;android-34"
           fi
 
@@ -87,46 +75,18 @@ jobs:
           ls -la ext_dex/classes.dex
           echo "EXTENSION_DEX_PATH=$GITHUB_WORKSPACE/ext_dex/classes.dex" >> "$GITHUB_ENV"
 
-      - name: Build debug APKs (All Variants)
+      - name: Build Gamehub Mali+ APKs (All Variants)
         run: |
           RELEASE=true ./patch.sh
           cp output/Gamehub-Mali-Plus-v1.0-Alpha.apk output/Gamehub-Mali-Plus.apk
 
-      - name: Upload debug APKs
+      - name: List Generated APK Variants
+        run: |
+          ls -lah output/
+
+      - name: Upload Gamehub Mali+ APK Artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: Gamehub-Mali-Plus-APKs
+          name: Gamehub-Mali-Plus-1.0-Alpha-Variants
           path: output/*.apk
           retention-days: 30
-
-      # Regenerate patches from the built APK and compare against repo.
-      # Detects patches that apply with fuzz/offset but aren't canonical.
-      # If drifted, uploads refreshed patches as a downloadable artifact.
-      - name: Refresh patches from built APK
-        id: refresh
-        run: |
-          cp -r patches/ /tmp/repo-patches/
-
-          ./generate-patches.sh apk/GameHub-5.1.0.apk output/Gamehub-Mali-Plus.apk
-
-          if diff -rq /tmp/repo-patches/diffs/ patches/diffs/ > /dev/null 2>&1 && \
-             diff -q /tmp/repo-patches/files_to_patch.txt patches/files_to_patch.txt > /dev/null 2>&1 && \
-             diff -q /tmp/repo-patches/files_to_add.txt patches/files_to_add.txt > /dev/null 2>&1 && \
-             diff -q /tmp/repo-patches/files_to_delete.txt patches/files_to_delete.txt > /dev/null 2>&1; then
-            echo "status=clean" >> "$GITHUB_OUTPUT"
-            echo "Patches are canonical - no drift detected"
-          else
-            echo "status=drifted" >> "$GITHUB_OUTPUT"
-            echo "::warning::Patches have drifted from canonical form. Download the refreshed-patches artifact to update them."
-            echo ""
-            echo "=== Changed files ==="
-            diff -rq /tmp/repo-patches/ patches/ 2>/dev/null || true
-          fi
-
-      - name: Upload refreshed patches
-        if: steps.refresh.outputs.status == 'drifted'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        with:
-          name: refreshed-patches
-          path: patches/
-          retention-days: 7

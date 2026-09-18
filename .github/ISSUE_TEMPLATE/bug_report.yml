@@ -32,16 +32,16 @@ body:
     attributes:
       label: Device
       description: Exact device model.
-      placeholder: Samsung Galaxy S24 Ultra
+      placeholder: Xiaomi 13T / Redmi K70E / Vivo X100
     validations:
       required: true
 
   - type: input
     id: soc
     attributes:
-      label: SoC
-      description: Chipset used by the device.
-      placeholder: Snapdragon 8 Elite
+      label: SoC / Mali GPU
+      description: Mali Chipset used by the device.
+      placeholder: Dimensity 9300 / 8300 / Mali-G715 / Immortalis-G720
     validations:
       required: true
 
@@ -49,15 +49,15 @@ body:
     id: android-version
     attributes:
       label: Android version
-      placeholder: Android 15 / One UI 7
+      placeholder: Android 14 / 15
     validations:
       required: true
 
   - type: input
     id: app-version
     attributes:
-      label: GameHub Lite version and package
-      description: Include the GameHub Lite build/version and package name. Benchmark variants may use different package names.
+      label: Gamehub Mali+ version and package
+      description: Include the Gamehub Mali+ build/version (1.0 Alpha) and package name. Benchmark variants may use different package names.
       placeholder: v1.2.3, package com.example.gamehublite
     validations:
       required: true

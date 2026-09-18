@@ -5,7 +5,7 @@
      <string name="ando_str_single_file_type_mismatch">文件类型不匹配</string>
      <string name="androidx_startup">androidx.startup</string>
 -    <string name="app_name">GameHub</string>
-+    <string name="app_name">GameHub Lite</string>
++    <string name="app_name">Gamehub Mali+</string>
      <string name="app_update_background_downloading">Downloading new version in the background…</string>
      <string name="app_update_click_hint">Click to install</string>
      <string name="app_update_close">Close</string>
@@ -91,13 +91,18 @@
      <string name="winemu_get_config_detail_failure">Failed to obtain the configuration scheme</string>
      <string name="winemu_gpu_driver">GPU Driver</string>
      <string name="winemu_guide_login_tips">Sync Steam play data, click to log in to your Steam account</string>
-@@ -3584,4 +3584,42 @@
+@@ -3584,4 +3584,47 @@
      <string name="yes">Yes</string>
      <string name="zb1">Equip-1</string>
      <string name="zb2">Equip-2</string>
 +    <string name="bh_framegen_dialog_flow_scale">Flow scale</string>
 +    <string name="bh_framegen_dialog_mode_suffix"> mode</string>
 +    <string name="bh_framegen_dialog_preset">Preset</string>
++    <string name="bh_framegen_multiplier_title">Multiplier (2x, 3x, 4x)</string>
++    <string name="bh_framegen_anti_lag_title">Low-FPS Anti-Lag (Anti-Stall)</string>
++    <string name="bh_framegen_anti_lag_desc">Eliminates slow-motion and lag when FPS is low by preventing interpolation buffer stalls.</string>
++    <string name="mali_tab_title">Mali</string>
++    <string name="mali_settings_open">Open Mali optimizations</string>
 +    <string name="bh_framegen_preset_bal_desc">Recommended. Balances smoothness, power usage, and stability.</string>
 +    <string name="bh_framegen_preset_bal_label">Bal</string>
 +    <string name="bh_framegen_preset_boost_desc">Stronger motion smoothing for users who prefer extra fluidity.</string>

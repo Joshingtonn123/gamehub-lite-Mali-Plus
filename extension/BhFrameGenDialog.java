@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -26,6 +27,9 @@ public class BhFrameGenDialog extends Dialog {
     private final String controlPath;
 
     private SeekBar sbFlowScale;
+    private SeekBar sbMultiplier;
+    private TextView tvMultiplierValue;
+    private CheckBox cbAntiLag;
     private TextView tvFlowScaleValue;
     private TextView tvPresetDesc;
     private TextView tvPresetLabel;
@@ -87,9 +91,52 @@ public class BhFrameGenDialog extends Dialog {
         title.setLayoutParams(titleLp);
         panel.addView(title);
 
+        // Top Tab Switcher Row: [ Frame Gen ] [ Mali ]
+        LinearLayout tabRow = new LinearLayout(ctx);
+        tabRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams tabRowLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(32));
+        tabRowLp.leftMargin = dp(16);
+        tabRowLp.rightMargin = dp(16);
+        tabRowLp.bottomMargin = dp(8);
+        tabRow.setLayoutParams(tabRowLp);
+
+        TextView tabFg = new TextView(ctx);
+        tabFg.setText("Frame Gen");
+        tabFg.setTextColor(Color.WHITE);
+        tabFg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        tabFg.setGravity(Gravity.CENTER);
+        GradientDrawable tabFgBg = new GradientDrawable();
+        tabFgBg.setColor(Color.parseColor("#ff3b82f6"));
+        tabFgBg.setCornerRadius(dp(6));
+        tabFg.setBackground(tabFgBg);
+        LinearLayout.LayoutParams fgLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        fgLp.rightMargin = dp(4);
+        tabFg.setLayoutParams(fgLp);
+        tabRow.addView(tabFg);
+
+        TextView tabMali = new TextView(ctx);
+        tabMali.setText("Mali GPU");
+        tabMali.setTextColor(Color.parseColor("#ff888e99"));
+        tabMali.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        tabMali.setGravity(Gravity.CENTER);
+        GradientDrawable tabMaliBg = new GradientDrawable();
+        tabMaliBg.setColor(Color.parseColor("#ff2a2a32"));
+        tabMaliBg.setCornerRadius(dp(6));
+        tabMali.setBackground(tabMaliBg);
+        LinearLayout.LayoutParams maliLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        maliLp.leftMargin = dp(4);
+        tabMali.setLayoutParams(maliLp);
+        tabMali.setOnClickListener(v -> {
+            dismiss();
+            BhMaliDialog.show(ctx);
+        });
+        tabRow.addView(tabMali);
+        panel.addView(tabRow);
+
         ScrollView scroll = new ScrollView(ctx);
         LinearLayout.LayoutParams scrollLp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(360));
         scrollLp.leftMargin = dp(16);
         scrollLp.rightMargin = dp(16);
         scroll.setLayoutParams(scrollLp);
@@ -160,6 +207,85 @@ public class BhFrameGenDialog extends Dialog {
         descLp.bottomMargin = dp(8);
         tvPresetDesc.setLayoutParams(descLp);
         body.addView(tvPresetDesc);
+
+        body.addView(divider());
+
+        // Multiplier Section (2x, 3x, 4x)
+        LinearLayout multHeaderRow = new LinearLayout(ctx);
+        multHeaderRow.setOrientation(LinearLayout.HORIZONTAL);
+        multHeaderRow.setLayoutParams(rowLp());
+
+        TextView multHeader = new TextView(ctx);
+        multHeader.setText(getStringByName("bh_framegen_multiplier_title", "Multiplier (2x, 3x, 4x)"));
+        multHeader.setTextColor(Color.WHITE);
+        multHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        LinearLayout.LayoutParams multHeaderLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        multHeader.setLayoutParams(multHeaderLp);
+        multHeaderRow.addView(multHeader);
+
+        tvMultiplierValue = new TextView(ctx);
+        tvMultiplierValue.setTextColor(Color.parseColor("#ff38bdf8"));
+        tvMultiplierValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        tvMultiplierValue.setText(settings.multiplier + "x");
+        multHeaderRow.addView(tvMultiplierValue);
+        body.addView(multHeaderRow);
+
+        sbMultiplier = new SeekBar(ctx);
+        sbMultiplier.setMax(2); // 0=2x, 1=3x, 2=4x
+        sbMultiplier.setProgress(Math.max(0, Math.min(2, settings.multiplier - 2)));
+        sbMultiplier.setLayoutParams(seekBarLp());
+        sbMultiplier.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int mult = progress + 2;
+                tvMultiplierValue.setText(mult + "x");
+                if (fromUser) {
+                    settings.multiplier = mult;
+                    BhFrameGenWriter.write(controlPath, settings);
+                    settings.save(getContext());
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        body.addView(sbMultiplier);
+
+        LinearLayout multTickRow = new LinearLayout(ctx);
+        multTickRow.setOrientation(LinearLayout.HORIZONTAL);
+        multTickRow.setLayoutParams(rowLp());
+        String[] multLabels = new String[]{"2x (Balanced)", "3x (High)", "4x (Ultra)"};
+        for (String label : multLabels) {
+            TextView tv = new TextView(ctx);
+            tv.setText(label);
+            tv.setTextColor(Color.parseColor("#ff888e99"));
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+            tv.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            tv.setLayoutParams(lp);
+            multTickRow.addView(tv);
+        }
+        body.addView(multTickRow);
+
+        body.addView(divider());
+
+        // Low-FPS Anti-Lag / Anti-Stall Safeguard
+        cbAntiLag = new CheckBox(ctx);
+        cbAntiLag.setText(getStringByName("bh_framegen_anti_lag_title", "Low-FPS Anti-Lag (Anti-Stall)") + "\n"
+                + getStringByName("bh_framegen_anti_lag_desc", "Eliminates slow-motion and input lag when game FPS is low by preventing interpolation buffer stalls."));
+        cbAntiLag.setTextColor(Color.WHITE);
+        cbAntiLag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        cbAntiLag.setChecked(settings.lowFpsAntiLag);
+        cbAntiLag.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            settings.lowFpsAntiLag = isChecked;
+            BhFrameGenWriter.write(controlPath, settings);
+            settings.save(getContext());
+        });
+        LinearLayout.LayoutParams cbLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cbLp.topMargin = dp(6);
+        cbLp.bottomMargin = dp(6);
+        cbAntiLag.setLayoutParams(cbLp);
+        body.addView(cbAntiLag);
 
         body.addView(divider());
 

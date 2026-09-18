@@ -58,9 +58,9 @@ body:
   - type: input
     id: affected-devices
     attributes:
-      label: Affected devices or SoCs
+      label: Affected Mali devices or SoCs
       description: Required for hardware-specific requests.
-      placeholder: Snapdragon 8 Gen 2, Snapdragon 8 Elite, Mali G715, etc.
+      placeholder: Dimensity 9300, Dimensity 8300, Mali-G715, Immortalis-G720, Mali-G610, etc.
     validations:
       required: false
 

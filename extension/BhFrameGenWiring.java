@@ -61,6 +61,36 @@ public class BhFrameGenWiring {
                 }
             });
         }
+
+        final View maliContainer = viewById(root, "mali_settings_container");
+        final View maliGearButton = viewById(root, "btn_mali_settings");
+        final View maliSwitchView = viewById(root, "switch_mali_optimizations");
+
+        if (maliContainer != null) {
+            maliContainer.setVisibility(View.VISIBLE);
+        }
+
+        if (maliSwitchView != null) {
+            BhMaliSettings maliSettings = BhMaliSettings.load(ctx);
+            invokeSetSwitch(maliSwitchView, maliSettings.enabled);
+
+            if (maliGearButton != null) {
+                maliGearButton.setVisibility(maliSettings.enabled ? View.VISIBLE : View.GONE);
+                maliGearButton.setOnClickListener(v -> BhMaliDialog.show(ctx));
+            }
+
+            maliSwitchView.setOnClickListener(v -> {
+                BhMaliSettings ms = BhMaliSettings.load(ctx);
+                boolean newState = !ms.enabled;
+                ms.enabled = newState;
+                invokeSetSwitch(v, newState);
+                ms.save(ctx);
+                BhMaliWriter.applyFromPrefs(ctx);
+                if (maliGearButton != null) {
+                    maliGearButton.setVisibility(newState ? View.VISIBLE : View.GONE);
+                }
+            });
+        }
     }
 
     /** SidebarSwitchItemView is part of the patched app, not on this extension's classpath. */

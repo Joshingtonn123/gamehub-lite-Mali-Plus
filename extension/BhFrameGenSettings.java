@@ -52,6 +52,8 @@ public class BhFrameGenSettings {
     public Preset preset = Preset.BAL;
     public float flowScale = 0.6f;      // bytes 4-7, clamped 0.2..1.0
     public int model = 0;               // byte 8, 0..1
+    public int multiplier = 2;          // byte 9: 2x, 3x, 4x
+    public boolean lowFpsAntiLag = true;// Prevents buffer stall and slow-mo when base FPS is low
 
     public static BhFrameGenSettings load(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
@@ -61,6 +63,8 @@ public class BhFrameGenSettings {
         catch (Exception e) { s.preset = Preset.BAL; }
         s.flowScale = sp.getFloat("flowScale", s.preset.flowScale);
         s.model = sp.getInt("model", s.preset.model);
+        s.multiplier = Math.max(2, Math.min(4, sp.getInt("multiplier", 2)));
+        s.lowFpsAntiLag = sp.getBoolean("lowFpsAntiLag", true);
         return s;
     }
 
@@ -70,6 +74,8 @@ public class BhFrameGenSettings {
         ed.putString("preset", preset.name());
         ed.putFloat("flowScale", flowScale);
         ed.putInt("model", model);
+        ed.putInt("multiplier", multiplier);
+        ed.putBoolean("lowFpsAntiLag", lowFpsAntiLag);
         ed.apply();
     }
 

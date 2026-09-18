@@ -41,23 +41,23 @@ body:
     id: device
     attributes:
       label: Device
-      placeholder: Samsung Galaxy S24 Ultra
+      placeholder: Xiaomi 13T / Redmi Note / Vivo X100
     validations:
       required: true
 
   - type: input
     id: soc
     attributes:
-      label: SoC
-      placeholder: Snapdragon 8 Elite
+      label: SoC / Mali GPU
+      placeholder: Dimensity 9300 / 8300 / Mali-G715 / Immortalis
     validations:
       required: true
 
   - type: input
     id: app-version
     attributes:
-      label: GameHub Lite version and package
-      placeholder: v1.2.3, package com.example.gamehublite
+      label: Gamehub Mali+ version and package
+      placeholder: 1.0 Alpha, package gamehub.lite
     validations:
       required: true
 

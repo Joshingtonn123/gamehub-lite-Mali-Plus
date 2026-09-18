@@ -33,15 +33,15 @@ KEY_ALIAS="${KEY_ALIAS:-androiddebugkey}"
 # Release mode: set RELEASE=true to build all package variants
 RELEASE="${RELEASE:-false}"
 
-# Version for output filenames (extracted from apktool.yml or set manually)
-VERSION="${VERSION:-}"
+# Version for output filenames (set to 1.0 Alpha for Gamehub Mali+)
+VERSION="${VERSION:-1.0-Alpha}"
 
 # Base package name used in patches
 BASE_PACKAGE="gamehub.lite"
 
 # Variant definitions as space-separated pairs: "name:package"
-# Order matters for release builds
-VARIANTS="base:gamehub.lite antutu:com.antutu.ABenchMark alt-antutu:com.antutu.benchmark.full ludashi:com.ludashi.aibench pubg:com.tencent.ig"
+# Multi-variant build creates performance-whitelisted packages for Mali / MediaTek / Exynos
+VARIANTS="base:gamehub.lite antutu:com.antutu.ABenchMark pubg:com.tencent.ig genshin:com.miHoYo.GenshinImpact geekbench:com.primatelabs.geekbench6"
 
 # Get package name for a variant
 get_variant_package() {
@@ -59,7 +59,7 @@ get_variant_package() {
 
 # Source APK (can be overridden)
 SOURCE_APK="${1:-$SCRIPT_DIR/apk/GameHub-5.1.0.apk}"
-OUTPUT_APK="$OUTPUT_DIR/GameHub-Lite.apk"
+OUTPUT_APK="$OUTPUT_DIR/Gamehub-Mali-Plus.apk"
 
 print_step() {
     echo -e "${BLUE}==>${NC} $1"
@@ -89,15 +89,14 @@ get_apktool_version() {
     run_apktool --version 2>/dev/null | head -1 | tr -d '\r'
 }
 
-# Extract version from apktool.yml after decompilation
+# Extract version and enforce 1.0 Alpha
 extract_version() {
-    if [ -z "$VERSION" ] && [ -f "$WORK_DIR/decompiled/apktool.yml" ]; then
-        # Format is "  versionName: 5.1.0" or "  versionName: '5.1.0'"
-        VERSION=$(grep "versionName:" "$WORK_DIR/decompiled/apktool.yml" | head -1 | awk -F': ' '{print $2}' | tr -d "'" | tr -d ' ')
+    VERSION="${VERSION:-1.0-Alpha}"
+    if [ -f "$WORK_DIR/decompiled/apktool.yml" ]; then
+        sed -i.bak "s/versionName:.*/versionName: '1.0 Alpha'/g" "$WORK_DIR/decompiled/apktool.yml"
+        rm -f "$WORK_DIR/decompiled/apktool.yml.bak"
     fi
-    # Default fallback
-    VERSION="${VERSION:-5.1.0}"
-    print_success "Version: $VERSION"
+    print_success "Version: $VERSION (1.0 Alpha)"
 }
 
 # Replace package name in AndroidManifest.xml for a variant
@@ -141,12 +140,12 @@ get_output_filename() {
 
     if [ "$variant" = "base" ]; then
         if [ "$RELEASE" = "true" ]; then
-            echo "$OUTPUT_DIR/GameHub-Lite-v${VERSION}.apk"
+            echo "$OUTPUT_DIR/Gamehub-Mali-Plus-v${VERSION}.apk"
         else
-            echo "$OUTPUT_DIR/GameHub-Lite.apk"
+            echo "$OUTPUT_DIR/Gamehub-Mali-Plus.apk"
         fi
     else
-        echo "$OUTPUT_DIR/GameHub-Lite-v${VERSION}-${variant}.apk"
+        echo "$OUTPUT_DIR/Gamehub-Mali-Plus-v${VERSION}-${variant}.apk"
     fi
 }
 
@@ -571,7 +570,7 @@ cleanup() {
 show_result() {
     echo ""
     echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}  GameHub Lite build complete!${NC}"
+    echo -e "${GREEN}  Gamehub Mali+ build complete!${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo ""
 
@@ -604,7 +603,7 @@ BUILT_APKS=""
 main() {
     echo ""
     echo "====================================="
-    echo "  GameHub Lite Patcher v1.0"
+    echo "  Gamehub Mali+ Patcher v1.0 Alpha"
     echo "====================================="
     echo ""
 

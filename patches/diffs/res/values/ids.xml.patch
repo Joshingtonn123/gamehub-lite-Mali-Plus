@@ -1,6 +1,6 @@
 --- a/res/values/ids.xml
 +++ b/res/values/ids.xml
-@@ -3338,4 +3338,35 @@
+@@ -3338,4 +3338,38 @@
      <item type="id" name="xy_together_max" />
      <item type="id" name="yesTv" />
      <item type="id" name="zh_bgImage" />
@@ -26,6 +26,9 @@
 +    <item type="id" name="btn_frame_gen_settings" />
 +    <item type="id" name="frame_gen_container" />
 +    <item type="id" name="switch_frame_gen" />
++    <item type="id" name="btn_mali_settings" />
++    <item type="id" name="mali_settings_container" />
++    <item type="id" name="switch_mali_optimizations" />
 +    <item type="id" name="rts_action_option_0" />
 +    <item type="id" name="rts_action_option_0_text" />
 +    <item type="id" name="rts_action_option_0_check" />
