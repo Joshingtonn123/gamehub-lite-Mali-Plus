@@ -1,0 +1,6 @@
+{
+  "name": "Gamehub Mali+",
+  "description": "Gamehub Mali+ (1.0 Alpha) - Optimized GameHub edition for Mali GPUs with 2x/3x/4x Frame Gen, Low-FPS Anti-Lag, and dedicated Mali GPU tuning",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

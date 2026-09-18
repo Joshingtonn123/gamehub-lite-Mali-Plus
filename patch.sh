@@ -478,11 +478,12 @@ align_apk() {
     print_step "Aligning APK..."
 
     local zipalign_cmd=""
+    local sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
 
     if command -v zipalign &>/dev/null; then
         zipalign_cmd="zipalign"
-    elif [ -n "$ANDROID_HOME" ]; then
-        zipalign_cmd=$(find "$ANDROID_HOME/build-tools" -name "zipalign" | head -1)
+    elif [ -n "$sdk_root" ] && [ -d "$sdk_root" ]; then
+        zipalign_cmd=$(find "$sdk_root/build-tools" -name "zipalign" 2>/dev/null | sort -V | tail -1)
     fi
 
     if [ -n "$zipalign_cmd" ]; then
@@ -498,27 +499,28 @@ sign_apk() {
     local target_apk="${1:-$OUTPUT_APK}"
     print_step "Signing APK -> $(basename "$target_apk")"
 
+    local sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+    local apksigner_cmd=""
+
     if command -v apksigner &>/dev/null; then
-        apksigner sign --ks "$KEYSTORE" \
-            --ks-pass "pass:$KEYSTORE_PASS" \
-            --ks-key-alias "$KEY_ALIAS" \
-            --out "$target_apk" \
-            "$WORK_DIR/unsigned.apk"
-    elif [ -n "$ANDROID_HOME" ]; then
-        local apksigner_cmd=$(find "$ANDROID_HOME/build-tools" -name "apksigner" | head -1)
-        if [ -n "$apksigner_cmd" ]; then
-            "$apksigner_cmd" sign --ks "$KEYSTORE" \
+        apksigner_cmd="apksigner"
+    elif [ -n "$sdk_root" ] && [ -d "$sdk_root" ]; then
+        apksigner_cmd=$(find "$sdk_root/build-tools" -name "apksigner" 2>/dev/null | sort -V | tail -1)
+    fi
+
+    if [ -n "$apksigner_cmd" ]; then
+        if [ "$apksigner_cmd" = "apksigner" ]; then
+            apksigner sign --ks "$KEYSTORE" \
                 --ks-pass "pass:$KEYSTORE_PASS" \
                 --ks-key-alias "$KEY_ALIAS" \
                 --out "$target_apk" \
                 "$WORK_DIR/unsigned.apk"
         else
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-                -keystore "$KEYSTORE" \
-                -storepass "$KEYSTORE_PASS" \
-                -keypass "$KEYSTORE_PASS" \
-                -signedjar "$target_apk" \
-                "$WORK_DIR/unsigned.apk" "$KEY_ALIAS"
+            "$apksigner_cmd" sign --ks "$KEYSTORE" \
+                --ks-pass "pass:$KEYSTORE_PASS" \
+                --ks-key-alias "$KEY_ALIAS" \
+                --out "$target_apk" \
+                "$WORK_DIR/unsigned.apk"
         fi
     else
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
@@ -549,6 +551,11 @@ build_variant() {
     rebuild_apk
     align_apk
     sign_apk "$output_apk"
+
+    # For base variant, ensure Gamehub-Mali-Plus.apk is also created
+    if [ "$variant" = "base" ]; then
+        cp -f "$output_apk" "$OUTPUT_DIR/Gamehub-Mali-Plus.apk" 2>/dev/null || true
+    fi
 
     # Track built APKs (newline separated)
     if [ -z "$BUILT_APKS" ]; then
