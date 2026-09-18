@@ -272,7 +272,10 @@ decompile_apk() {
     rm -rf "$WORK_DIR"
     mkdir -p "$WORK_DIR"
 
-    run_apktool d -f "$SOURCE_APK" -o "$WORK_DIR/decompiled" 2>&1 | tail -5
+    if ! run_apktool d -f "$SOURCE_APK" -o "$WORK_DIR/decompiled"; then
+        print_error "apktool decompile failed"
+        return 1
+    fi
 
     print_success "APK decompiled to $WORK_DIR/decompiled"
 }
@@ -376,9 +379,13 @@ rebuild_apk() {
 
     mkdir -p "$OUTPUT_DIR"
 
+    # Attempt apktool build
     if ! run_apktool b "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
-        print_error "apktool build failed"
-        return 1
+        print_error "apktool build failed with standard flags. Retrying with --use-aapt2..."
+        if ! run_apktool b --use-aapt2 "$WORK_DIR/decompiled" -o "$WORK_DIR/unsigned.apk"; then
+            print_error "apktool build failed! Check resource XMLs or Smali syntax errors."
+            return 1
+        fi
     fi
 
     print_success "APK rebuilt"
