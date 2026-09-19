@@ -127,13 +127,12 @@ KEY_ALIAS="your_key_alias" \
 
 This will generate the following APKs in the `output/` directory:
 
-| Variant    | Filename                                 | Package Name                |
-| ---------- | ---------------------------------------- | --------------------------- |
-| Base       | `GameHub-Lite-v{VERSION}.apk`            | `gamehub.lite`              |
-| AnTuTu     | `GameHub-Lite-v{VERSION}-antutu.apk`     | `com.antutu.ABenchMark`     |
-| Alt-AnTuTu | `GameHub-Lite-v{VERSION}-alt-antutu.apk` | `com.antutu.benchmark.full` |
-| Ludashi    | `GameHub-Lite-v{VERSION}-ludashi.apk`    | `com.ludashi.aibench`       |
-| PUBG       | `GameHub-Lite-v{VERSION}-pubg.apk`       | `com.tencent.ig`            |
+| Variant        | Filename                                         | Package Name                |
+| -------------- | ------------------------------------------------ | --------------------------- |
+| Normal         | `Gamehub-Mali-Plus-v{VERSION}.apk`               | `com.Gamehub.Mali`          |
+| Antutu         | `Gamehub-Mali-Plus-v{VERSION}-antutu.apk`        | `com.antutu.ABenchMark`     |
+| Alt Antutu     | `Gamehub-Mali-Plus-v{VERSION}-alt-antutu.apk`    | `com.antutu.benchmark.full` |
+| Genshin spoof  | `Gamehub-Mali-Plus-v{VERSION}-genshin.apk`       | `com.miHoYo.GenshinImpact`  |
 
 The version number is automatically extracted from the source APK.
 

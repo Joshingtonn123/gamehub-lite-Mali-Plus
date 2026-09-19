@@ -735,10 +735,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
       <div class="variant-list">
         <div class="variant-item">
           <div class="variant-left">
-            <div class="variant-icon">BASE</div>
+            <div class="variant-icon">NORMAL</div>
             <div>
               <div class="variant-title">Gamehub-Mali-Plus.apk</div>
-              <div class="variant-desc">Standard signature &bull; com.antutu.ABenchMark spoof for generic Mali devices</div>
+              <div class="variant-desc">Normal package &bull; com.Gamehub.Mali</div>
             </div>
           </div>
           <span class="badge-apk">1.0-Alpha</span>
@@ -746,10 +746,21 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         <div class="variant-item">
           <div class="variant-left">
-            <div class="variant-icon">PUBG</div>
+            <div class="variant-icon">ANTUTU</div>
             <div>
-              <div class="variant-title">Gamehub-Mali-Plus-v1.0-Alpha-pubg.apk</div>
-              <div class="variant-desc">Spoofs com.tencent.ig &bull; Unlocks 120 FPS high-refresh mode on Xiaomi, Vivo &amp; Oppo</div>
+              <div class="variant-title">Gamehub-Mali-Plus-v1.0-Alpha-antutu.apk</div>
+              <div class="variant-desc">AnTuTu benchmark spoof &bull; com.antutu.ABenchMark (triggers max Mali GPU clocks)</div>
+            </div>
+          </div>
+          <span class="badge-apk">1.0-Alpha</span>
+        </div>
+
+        <div class="variant-item">
+          <div class="variant-left">
+            <div class="variant-icon">ALT-ANTUTU</div>
+            <div>
+              <div class="variant-title">Gamehub-Mali-Plus-v1.0-Alpha-alt-antutu.apk</div>
+              <div class="variant-desc">Alt AnTuTu benchmark spoof &bull; com.antutu.benchmark.full</div>
             </div>
           </div>
           <span class="badge-apk">1.0-Alpha</span>
@@ -760,18 +771,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div class="variant-icon">GENSHIN</div>
             <div>
               <div class="variant-title">Gamehub-Mali-Plus-v1.0-Alpha-genshin.apk</div>
-              <div class="variant-desc">Spoofs com.miHoYo.GenshinImpact &bull; Maxes out GPU power limit on Dimensity phones</div>
-            </div>
-          </div>
-          <span class="badge-apk">1.0-Alpha</span>
-        </div>
-
-        <div class="variant-item">
-          <div class="variant-left">
-            <div class="variant-icon">GEEKBENCH</div>
-            <div>
-              <div class="variant-title">Gamehub-Mali-Plus-v1.0-Alpha-geekbench.apk</div>
-              <div class="variant-desc">Spoofs com.primatelabs.geekbench6 &bull; Unlocks maximum sustained Cortex-X core clocks</div>
+              <div class="variant-desc">Genshin Impact spoof &bull; com.miHoYo.GenshinImpact (sustained power limits on Dimensity &amp; Exynos)</div>
             </div>
           </div>
           <span class="badge-apk">1.0-Alpha</span>

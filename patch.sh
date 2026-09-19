@@ -41,11 +41,16 @@ BASE_PACKAGE="gamehub.lite"
 
 # Variant definitions as space-separated pairs: "name:package"
 # Multi-variant build creates performance-whitelisted packages for Mali / MediaTek / Exynos
-VARIANTS="base:gamehub.lite antutu:com.antutu.ABenchMark pubg:com.tencent.ig genshin:com.miHoYo.GenshinImpact geekbench:com.primatelabs.geekbench6"
+VARIANTS="normal:com.Gamehub.Mali antutu:com.antutu.ABenchMark alt-antutu:com.antutu.benchmark.full genshin:com.miHoYo.GenshinImpact"
 
 # Get package name for a variant
 get_variant_package() {
     local variant="$1"
+    if [ "$variant" = "base" ]; then
+        variant="normal"
+    elif [ "$variant" = "alt_antutu" ]; then
+        variant="alt-antutu"
+    fi
     for pair in $VARIANTS; do
         local name="${pair%%:*}"
         local package="${pair#*:}"
@@ -138,7 +143,7 @@ backup_manifest() {
 get_output_filename() {
     local variant="$1"
 
-    if [ "$variant" = "base" ]; then
+    if [ "$variant" = "base" ] || [ "$variant" = "normal" ]; then
         if [ "$RELEASE" = "true" ]; then
             echo "$OUTPUT_DIR/Gamehub-Mali-Plus-v${VERSION}.apk"
         else
@@ -579,9 +584,10 @@ build_variant() {
     align_apk
     sign_apk "$output_apk"
 
-    # For base variant, ensure Gamehub-Mali-Plus.apk is also created
-    if [ "$variant" = "base" ]; then
+    # For normal/base variant, ensure Gamehub-Mali-Plus.apk and versioned normal are also created
+    if [ "$variant" = "base" ] || [ "$variant" = "normal" ]; then
         cp -f "$output_apk" "$OUTPUT_DIR/Gamehub-Mali-Plus.apk" 2>/dev/null || true
+        cp -f "$output_apk" "$OUTPUT_DIR/Gamehub-Mali-Plus-v${VERSION}-normal.apk" 2>/dev/null || true
     fi
 
     # Track built APKs (newline separated)
@@ -669,7 +675,11 @@ main() {
             build_variant "$variant"
         done
     else
-        # Standard single build
+        # Standard single build (uses normal com.Gamehub.Mali package)
+        local normal_pkg=$(get_variant_package "normal")
+        if [ -n "$normal_pkg" ]; then
+            replace_package_name "$normal_pkg"
+        fi
         rebuild_apk
         align_apk
         sign_apk "$OUTPUT_APK"
